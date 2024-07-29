@@ -23,7 +23,7 @@
 </script>
 
 {#if url.match(verifiableRegexp)}
-  <VerifiablePresentation {url} {pubkey} />
+  <VerifiablePresentation {pubkey} {url} />
 {:else if url.match(coracleRegexp)}
   <Anchor
     modal

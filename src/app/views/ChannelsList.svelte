@@ -28,7 +28,12 @@
     $ch.filter(c => c.last_received > 0 && c.last_sent === 0),
   )
   const setActiveTab = tab => {
-    const path = tab === "requests" ? "channels/requests" : "channels"
+    const tabPaths = {
+      conversations: "channels",
+      requests: "channels/requests",
+      verified: "channels/verified",
+    }
+    const path = tabPaths[tab] ?? "channels"
 
     router.at(path).push()
   }
@@ -107,7 +112,7 @@
     </Anchor>
   </div>
   <div class="relative">
-    <Tabs tabs={["conversations", "requests"]} {activeTab} {setActiveTab}>
+    <Tabs tabs={["conversations", "requests", "verified"]} {activeTab} {setActiveTab}>
       <div slot="tab" let:tab class="flex gap-2">
         <div>{toTitle(tab)}</div>
         <div class="h-6 rounded-full bg-neutral-700 px-2">

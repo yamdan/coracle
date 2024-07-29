@@ -341,6 +341,16 @@
     },
   })
 
+  router.register(
+    "/verifiable-presentation/:pubkey/:url",
+    import("src/app/views/VerifiablePresentationDetail.svelte"),
+    {
+      serializers: {
+        url: asUrlComponent("url"),
+      },
+    },
+  )
+
   router.init()
 
   // Globals

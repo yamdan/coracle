@@ -9,7 +9,7 @@
 </script>
 
 <NoteContentKind1
-  note={{content: $profile?.about || ""}}
+  note={{content: $profile?.about || "", pubkey}}
   minLength={200}
   maxLength={300}
   expandable={false}

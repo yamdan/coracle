@@ -502,6 +502,42 @@ export const profileSearch = derived(
     ),
 )
 
+// TBD: This is a placeholder for the actual DID Docs
+import {
+  BUILTIN_CONTEXTS,
+  BUILTIN_DIDDOCS,
+  customDocumentLoader,
+  verifyVP,
+} from "src/util/verification"
+
+export const didDocs = BUILTIN_DIDDOCS
+export const jsonldContexts = BUILTIN_CONTEXTS
+export const documentLoader = customDocumentLoader(jsonldContexts)
+
+const verifiableRegexp = /^(https:\/\/)[^#]+#verifiable-presentation$/
+
+export const verifyProfileByPubkey = async (pk: string) => {
+  const profile = getProfile(pk)
+
+  const vpLink = profile?.about?.match(verifiableRegexp)?.[0]
+
+  if (vpLink) {
+    const vp = await fetch(vpLink).then(r => r.json())
+
+    if (vp) {
+      console.log("Verifying VP", vp)
+      const verified = await verifyVP(vp, didDocs, documentLoader, {challenge: pk})
+
+      return verified
+    }
+  }
+
+  return undefined
+}
+
+export const deriveVerifiedProfile = (pk: string) =>
+  derived(deriveProfile(pk), () => verifyProfileByPubkey(pk))
+
 // Handles/Zappers
 
 export const getHandle = (pubkey: string) => handles.get()[pubkey]
