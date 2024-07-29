@@ -514,7 +514,7 @@ export const didDocs = BUILTIN_DIDDOCS
 export const jsonldContexts = BUILTIN_CONTEXTS
 export const documentLoader = customDocumentLoader(jsonldContexts)
 
-const verifiableRegexp = /^(https:\/\/)[^#]+#verifiable-presentation$/
+const verifiableRegexp = /(https:\/\/)[^#]+#verifiable-presentation/
 
 export const verifyProfileByPubkey = async (pk: string) => {
   const profile = getProfile(pk)
@@ -525,7 +525,6 @@ export const verifyProfileByPubkey = async (pk: string) => {
     const vp = await fetch(vpLink).then(r => r.json())
 
     if (vp) {
-      console.log("Verifying VP", vp)
       const verified = await verifyVP(vp, didDocs, documentLoader, {challenge: pk})
 
       return verified
