@@ -26,12 +26,18 @@
     loadGiftWraps,
   } from "src/engine"
 
-  const activeTab = window.location.pathname.slice(1) === "channels" ? "conversations" : "requests"
+  const currentPath = window.location.pathname.slice(1)
+  const activeTab = currentPath === "channels" ? "conversations" : currentPath
   const userChannels = channels.derived(filter((c: Channel) => c.members?.includes($pubkey)))
   const accepted = userChannels.derived(filter((c: Channel) => Boolean(c.last_sent)))
   const requests = userChannels.derived(filter((c: Channel) => c.last_received && !c.last_sent))
   const setActiveTab = tab => {
-    const path = tab === "requests" ? "channels/requests" : "channels"
+    const tabPaths = {
+      conversations: "channels",
+      requests: "channels/requests",
+      verified: "channels/verified",
+    }
+    const path = tabPaths[tab] ?? "channels"
 
     router.at(path).push()
   }
@@ -110,7 +116,7 @@
     </Anchor>
   </div>
   <div class="relative">
-    <Tabs tabs={["conversations", "requests"]} {activeTab} {setActiveTab}>
+    <Tabs tabs={["conversations", "requests", "verified"]} {activeTab} {setActiveTab}>
       <div slot="tab" let:tab class="flex gap-2">
         <div>{toTitle(tab)}</div>
         <div class="h-6 rounded-full bg-neutral-700 px-2">

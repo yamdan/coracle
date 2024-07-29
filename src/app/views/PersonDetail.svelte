@@ -28,6 +28,7 @@
     imgproxy,
     deriveZapper,
     getPubkeyRelayPolicies,
+    deriveVerifiedProfile,
   } from "src/engine"
   import {router} from "src/app/util"
 
@@ -58,6 +59,8 @@
   const setActiveTab = tab => {
     activeTab = tab
   }
+
+  const verifiedProfile = deriveVerifiedProfile(pubkey)
 </script>
 
 <div
