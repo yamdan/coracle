@@ -60,7 +60,7 @@
     activeTab = tab
   }
 
-  const verifiedProfile = deriveVerifiedProfile(pubkey)
+  $: verifiedProfile = deriveVerifiedProfile(pubkey)
 </script>
 
 <div
@@ -80,6 +80,23 @@
         </div>
       </div>
       <PersonHandle {pubkey} />
+      {#await $verifiedProfile}
+        <Spinner />
+      {:then vp}
+        {#if vp !== undefined}
+          <div class="flex items-center gap-2 text-sm">
+            <i class="fa fa-id-card text-accent" />
+            {#if vp.result === true}
+              <code class="text-xs"
+                >{vp.metadata?.holder} <i class="fa fa-at" /> {vp.metadata?.domain}</code>
+            {:else if vp.result === false}
+              Invalid profile VP
+            {/if}
+          </div>
+        {/if}
+      {:catch e}
+        <small class="text-xs">Failed to load profile VP</small>
+      {/await}
     </div>
     {#if $profile?.website}
       <Anchor external class="flex items-center gap-2 text-sm" href={ensureProto($profile.website)}>
