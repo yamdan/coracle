@@ -4,6 +4,7 @@ import {verifyProof} from "@zkp-ld/jsonld-proofs"
 import type {VCMetadata, VPMetadata, VerifiedVP} from "./types/VCVP"
 import type {RemoteDocument} from "./types/jsonld/jsonld-spec"
 import {exampleSnarkVerifyingKeys} from "./snarkVerifyingKeys"
+import {BUILTIN_CONTEXTS, BUILTIN_DIDDOCS, customDocumentLoader} from "."
 
 const BBS_BOUND = "bbs-termwise-bound-signature-2023"
 const BBS_UNBOUND = "bbs-termwise-signature-2023"
@@ -28,6 +29,33 @@ const DCTERMS = "http://purl.org/dc/terms/"
 const DCTERMS_CREATED = `${DCTERMS}created`
 
 const PPID = "https://zkp-ld.org/.well-known/genid/"
+
+// TBD
+const didDocs = BUILTIN_DIDDOCS
+const jsonldContexts = BUILTIN_CONTEXTS
+const documentLoader = customDocumentLoader(jsonldContexts)
+
+export const verifyRemoteVP = async (vpLink: string, pubkey: string) => {
+  try {
+    if (vpLink) {
+      const response = await fetch(vpLink)
+      if (!response.ok) {
+        throw new Error(response.statusText)
+      }
+
+      const vp = await response.json()
+      if (vp) {
+        const verified = await verifyVP(vp, didDocs, documentLoader, {challenge: pubkey})
+
+        return verified
+      }
+    }
+  } catch (error) {
+    console.error("Error verifying profile:", error)
+  }
+
+  return undefined
+}
 
 export const verifyVP = async (
   vp: JsonLdDocument,
@@ -66,7 +94,7 @@ const getVCmetadata = (vc: any): VCMetadata => ({
   issuer: getIssuer(vc),
   issuanceDate: getIssuanceDate(vc),
   expirationDate: getExpirationDate(vc),
-  subject: getCredentialSubject(vc),
+  credentialSubject: getCredentialSubject(vc),
 })
 
 const getIssuer = (vc: any): string | undefined => vc?.[0]?.[CREDS_ISSUER]?.[0]?.[ID]
