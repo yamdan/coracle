@@ -3,17 +3,8 @@
   import {fly} from "src/util/transition"
   import Spinner from "src/partials/Spinner.svelte"
   import {defer} from "hurdak"
+  import {verifyRemoteVP} from "src/util/verification/verify"
   import type {VerifiedVP} from "src/util/verification/types/VCVP"
-  import {
-    BUILTIN_CONTEXTS,
-    BUILTIN_DIDDOCS,
-    customDocumentLoader,
-    verifyVP,
-  } from "src/util/verification"
-
-  const didDocs = BUILTIN_DIDDOCS
-  const jsonldContexts = BUILTIN_CONTEXTS
-  const documentLoader = customDocumentLoader(jsonldContexts)
 
   export let pubkey
   export let url
@@ -21,10 +12,7 @@
   let verifiedProfile: Promise<VerifiedVP> = defer()
 
   onMount(async () => {
-    const vp = await fetch(url).then(r => r.json())
-    if (vp) {
-      verifiedProfile = verifyVP(vp, didDocs, documentLoader, {challenge: pubkey})
-    }
+    verifiedProfile = verifyRemoteVP(url, pubkey)
   })
 </script>
 

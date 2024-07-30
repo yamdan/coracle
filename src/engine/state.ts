@@ -161,6 +161,7 @@ import type {
 import {GroupAccess, OnboardingTask} from "src/engine/model"
 import {getNip04, getNip44, getNip59, getSigner, getConnect} from "src/engine/utils"
 import {repository, events, deriveEvents, deriveEventsMapped, relay} from "src/engine/repository"
+import { verifyRemoteVP } from "src/util/verification/verify"
 
 // Base state
 
@@ -449,36 +450,17 @@ export const profileSearch = derived(
     ),
 )
 
-// TBD: This is a placeholder for the actual DID Docs
-import {
-  BUILTIN_CONTEXTS,
-  BUILTIN_DIDDOCS,
-  customDocumentLoader,
-  verifyVP,
-} from "src/util/verification"
+const verifiableRegexp = /https:\/\/[^#]+#verifiable-presentation/
 
-export const didDocs = BUILTIN_DIDDOCS
-export const jsonldContexts = BUILTIN_CONTEXTS
-export const documentLoader = customDocumentLoader(jsonldContexts)
-
-const verifiableRegexp = /(https:\/\/)[^#]+#verifiable-presentation/
-
-export const verifyProfileByPubkey = async (pk: string) => {
-  const profile = getProfile(pk)
-
+export const verifyProfileByPubkey = async (pubkey: string) => {
+  const profile = getProfile(pubkey)
   const vpLink = profile?.about?.match(verifiableRegexp)?.[0]
 
-  if (vpLink) {
-    const vp = await fetch(vpLink).then(r => r.json())
-
-    if (vp) {
-      const verified = await verifyVP(vp, didDocs, documentLoader, {challenge: pk})
-
-      return verified
-    }
+  if (!vpLink) {
+    return undefined
   }
 
-  return undefined
+  return await verifyRemoteVP(vpLink, pubkey)
 }
 
 export const deriveVerifiedProfile = (pk: string) =>
