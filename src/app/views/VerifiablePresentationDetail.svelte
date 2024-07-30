@@ -36,7 +36,15 @@
       <span>{vp.metadata.challenge}</span>
       <h2 class="staatliches text-xl">PPID</h2>
       <code>{vp.metadata.holder} @ {vp.metadata.domain}</code>
-      <h2 class="staatliches text-xl">Details</h2>
+      {#if vp.metadata.boundVCs && vp.metadata.boundVCs.length > 0}
+        <h2 class="staatliches text-xl">Bound VC Summary</h2>
+        <pre><code>{JSON.stringify(vp.metadata.boundVCs, null, 2)}</code></pre>
+      {/if}
+      {#if vp.metadata.unboundVCs && vp.metadata.unboundVCs.length > 0}
+        <h2 class="staatliches text-xl">Unbound VC Summary</h2>
+        <pre><code>{JSON.stringify(vp.metadata.unboundVCs, null, 2)}</code></pre>
+      {/if}
+      <h2 class="staatliches text-xl">Complete VP</h2>
       <pre><code>{vp ? JSON.stringify(vp.vp, null, 2) : ""}</code></pre>
     </div>
   {:else}

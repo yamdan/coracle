@@ -4,7 +4,7 @@ export interface VCMetadata {
   issuer?: string;
   issuanceDate?: string;
   expirationDate?: string;
-  subject?: any;
+  credentialSubject?: any;
 }
 
 export interface VPMetadata {
