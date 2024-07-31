@@ -60,7 +60,7 @@
     activeTab = tab
   }
 
-  $: verifiedProfile = deriveVerifiedProfile(pubkey)
+  $: profileVPPromise = deriveVerifiedProfile(pubkey)
 </script>
 
 <div
@@ -80,19 +80,26 @@
         </div>
       </div>
       <PersonHandle {pubkey} />
-      {#await $verifiedProfile}
+      {#await $profileVPPromise}
         <Spinner />
-      {:then vp}
-        {#if vp !== undefined}
-          <div class="flex items-center gap-2 text-sm">
+      {:then profileVP}
+        {#if profileVP !== undefined}
+          <Anchor
+            modal
+            class="flex items-center gap-2 text-sm"
+            stopPropagation
+            href={router.at("verifiable-profile").of(pubkey).toString()}>
             <i class="fa fa-id-card text-accent" />
-            {#if vp.result === true}
-              <code class="text-xs"
-                >{vp.metadata?.holder} <i class="fa fa-at" /> {vp.metadata?.domain}</code>
-            {:else if vp.result === false}
+            {#if profileVP.result === true}
+              <code class="text-xs">
+                {profileVP.metadata?.holder}
+                <i class="fa fa-at" />
+                {profileVP.metadata?.domain}
+              </code>
+            {:else if profileVP.result === false}
               Invalid profile VP
             {/if}
-          </div>
+          </Anchor>
         {/if}
       {:catch e}
         <small class="text-xs">Failed to load profile VP</small>

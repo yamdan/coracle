@@ -13,7 +13,8 @@
   const url = value.url.toString()
 
   const coracleRegexp = /^(https?:\/\/)?(app\.)?coracle.social/
-  const verifiableRegexp = /#verifiable-presentation$/
+  const verifiablePresentationRegexp = /#verifiable-presentation$/
+  const verifiableProfileRegexp = /#verifiable-profile$/
 
   const close = () => {
     hidden = true
@@ -22,8 +23,10 @@
   let hidden = false
 </script>
 
-{#if url.match(verifiableRegexp)}
+{#if url.match(verifiablePresentationRegexp)}
   <VerifiablePresentation {pubkey} {url} />
+{:else if url.match(verifiableProfileRegexp)}
+  {''}
 {:else if url.match(coracleRegexp)}
   <Anchor
     modal

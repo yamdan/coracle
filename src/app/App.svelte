@@ -351,6 +351,10 @@
       },
     },
   )
+  router.register(
+    "/verifiable-profile/:pubkey",
+    import("src/app/views/VerifiableProfileDetail.svelte"),
+  )
 
   router.init()
 

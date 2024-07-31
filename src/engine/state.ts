@@ -161,7 +161,7 @@ import type {
 import {GroupAccess, OnboardingTask} from "src/engine/model"
 import {getNip04, getNip44, getNip59, getSigner, getConnect} from "src/engine/utils"
 import {repository, events, deriveEvents, deriveEventsMapped, relay} from "src/engine/repository"
-import { verifyRemoteVP } from "src/util/verification/verify"
+import {DOMAIN_FOR_PPID, verifyRemoteVP} from "src/util/verification"
 
 // Base state
 
@@ -450,17 +450,17 @@ export const profileSearch = derived(
     ),
 )
 
-const verifiableRegexp = /https:\/\/[^#]+#verifiable-presentation/
+const verifiableProfileRegexp = /https:\/\/[^#]+#verifiable-profile/
 
 export const verifyProfileByPubkey = async (pubkey: string) => {
   const profile = getProfile(pubkey)
-  const vpLink = profile?.about?.match(verifiableRegexp)?.[0]
+  const vpLink = profile?.about?.match(verifiableProfileRegexp)?.[0]
 
   if (!vpLink) {
     return undefined
   }
 
-  return await verifyRemoteVP(vpLink, pubkey)
+  return await verifyRemoteVP(vpLink, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
 }
 
 export const deriveVerifiedProfile = (pk: string) =>
