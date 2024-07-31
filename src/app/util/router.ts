@@ -140,3 +140,6 @@ router.extend("people", (pubkey, {relays = []} = {}) => {
 router.extend("verifiable-presentation", (pubkey, {url}) => {
   return `${pubkey}/${encodeURIComponent(url)}`
 })
+router.extend("verifiable-profile", (pubkey) => {
+  return `${pubkey}`
+})

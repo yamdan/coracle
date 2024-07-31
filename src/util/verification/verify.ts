@@ -5,6 +5,7 @@ import type {VCMetadata, VPMetadata, VerifiedVP} from "./types/VCVP"
 import type {RemoteDocument} from "./types/jsonld/jsonld-spec"
 import {exampleSnarkVerifyingKeys} from "./snarkVerifyingKeys"
 import {BUILTIN_CONTEXTS, BUILTIN_DIDDOCS, customDocumentLoader} from "."
+import type {VerifyProofOptions} from "@zkp-ld/jsonld-proofs/lib/types"
 
 const BBS_BOUND = "bbs-termwise-bound-signature-2023"
 const BBS_UNBOUND = "bbs-termwise-signature-2023"
@@ -35,7 +36,7 @@ const didDocs = BUILTIN_DIDDOCS
 const jsonldContexts = BUILTIN_CONTEXTS
 const documentLoader = customDocumentLoader(jsonldContexts)
 
-export const verifyRemoteVP = async (vpLink: string, pubkey: string) => {
+export const verifyRemoteVP = async (vpLink: string, options: VerifyProofOptions = {}) => {
   try {
     if (vpLink) {
       const response = await fetch(vpLink)
@@ -45,7 +46,7 @@ export const verifyRemoteVP = async (vpLink: string, pubkey: string) => {
 
       const vp = await response.json()
       if (vp) {
-        const verified = await verifyVP(vp, didDocs, documentLoader, {challenge: pubkey})
+        const verified = await verifyVP(vp, didDocs, documentLoader, options)
 
         return verified
       }
@@ -61,16 +62,17 @@ export const verifyVP = async (
   vp: JsonLdDocument,
   didDocs: JsonLdDocument,
   documentLoader: (url: string) => Promise<RemoteDocument>,
-  options: {challenge?: string; domain?: string} = {},
+  options: VerifyProofOptions = {},
 ): Promise<VerifiedVP> => {
   try {
     const extendedVP: any = await jsonld.expand(vp, {documentLoader, safe: true})
     const vpMetadata = getVPmetadata(extendedVP)
-    const result = await verifyProof(vp, didDocs, documentLoader, {
-      challenge: options.challenge ?? vpMetadata.challenge,
-      domain: options.domain ?? vpMetadata.domain,
-      snarkVerifyingKeys: exampleSnarkVerifyingKeys,
-    })
+    const optionsWithSnarkKeys = {
+      ...options,
+      snarkVerifyingKeys: options.snarkVerifyingKeys ?? exampleSnarkVerifyingKeys,
+    }
+
+    const result = await verifyProof(vp, didDocs, documentLoader, optionsWithSnarkKeys)
 
     return {
       vp,
