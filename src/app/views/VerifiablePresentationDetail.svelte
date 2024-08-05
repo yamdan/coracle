@@ -3,10 +3,13 @@
   import {fly} from "src/util/transition"
   import Spinner from "src/partials/Spinner.svelte"
   import {defer} from "hurdak"
-  import {verifyEmbeddedVP, verifyRemoteVP} from "src/util/verification/verify"
-  import type {VerifiedVP} from "src/util/verification/types/VCVP"
   import {deriveVerifiedProfile} from "src/engine"
-  import {DOMAIN_FOR_PPID} from "src/util/verification"
+  import {
+    DOMAIN_FOR_PPID,
+    verifyEmbeddedVP,
+    verifyRemoteVP,
+    type VerifiedVP,
+  } from "src/util/verification"
   import Anchor from "src/partials/Anchor.svelte"
   import {router} from "src/app/util"
 
