@@ -351,6 +351,15 @@
     },
   )
   router.register(
+    "/verifiable-presentation-embedded/:pubkey/:value",
+    import("src/app/views/VerifiablePresentationDetail.svelte"),
+    {
+      serializers: {
+        value: asUrlComponent("value"),
+      },
+    },
+  )
+  router.register(
     "/verifiable-profile/:pubkey",
     import("src/app/views/VerifiableProfileDetail.svelte"),
   )

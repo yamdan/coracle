@@ -3,7 +3,7 @@
   import {fly} from "src/util/transition"
   import Spinner from "src/partials/Spinner.svelte"
   import {defer} from "hurdak"
-  import {verifyRemoteVP} from "src/util/verification/verify"
+  import {verifyEmbeddedVP, verifyRemoteVP} from "src/util/verification/verify"
   import type {VerifiedVP} from "src/util/verification/types/VCVP"
   import {deriveVerifiedProfile} from "src/engine"
   import {DOMAIN_FOR_PPID} from "src/util/verification"
@@ -11,13 +11,18 @@
   import {router} from "src/app/util"
 
   export let pubkey
-  export let url
+  export let url = ""
+  export let value = ""
 
   let messageVpPromise: Promise<VerifiedVP> = defer()
   $: profileVpPromise = deriveVerifiedProfile(pubkey)
 
   onMount(async () => {
-    messageVpPromise = verifyRemoteVP(url, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+    if (url) {
+      messageVpPromise = verifyRemoteVP(url, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+    } else {
+      messageVpPromise = verifyEmbeddedVP(value, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+    }
   })
 
   const validateMessageVP = (messageVP, profileVP) => {
@@ -66,7 +71,14 @@
     {:else}
       {@const validated = validateMessageVP(messageVP, profileVP)}
       <div in:fly={{y: 20}}>
-        <h1 class="staatliches text-2xl">Attached Verifiable Presentation</h1>
+        {#if url}
+          <h1 class="staatliches text-2xl">
+            Linked Verifiable Presentation
+            <Anchor underline external externalHref={url}>(data source)</Anchor>
+          </h1>
+        {:else}
+          <h1 class="staatliches text-2xl">Embedded Verifiable Presentation</h1>
+        {/if}
 
         <h2 class="staatliches text-xl">Verification Result</h2>
         {#if validated.result}
