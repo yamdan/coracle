@@ -58,6 +58,22 @@ export const verifyRemoteVP = async (vpLink: string, options: VerifyProofOptions
   return undefined
 }
 
+export const verifyEmbeddedVP = async (embeddedVP: string, options: VerifyProofOptions = {}) => {
+  try {
+    const vp = JSON.parse(embeddedVP)
+
+    if (vp) {
+      const verified = await verifyVP(vp, didDocs, documentLoader, options)
+
+      return verified
+    }
+  } catch (error) {
+    console.error("Error verifying profile:", error)
+  }
+
+  return undefined
+}
+
 export const verifyVP = async (
   vp: JsonLdDocument,
   didDocs: JsonLdDocument,
