@@ -23,7 +23,7 @@
   onMount(async () => {
     if (url) {
       messageVpPromise = verifyRemoteVP(url, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
-    } else {
+    } else if (value) {
       messageVpPromise = verifyEmbeddedVP(value, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
     }
   })
