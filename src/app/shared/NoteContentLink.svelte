@@ -8,7 +8,7 @@
   
   export let value
   export let showMedia = false
-  export let pubkey
+  export let pubkey = ""
 
   const url = value.url.toString()
 
