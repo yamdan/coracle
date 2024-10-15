@@ -4,13 +4,17 @@
   import Anchor from "src/partials/Anchor.svelte"
   import Media from "src/partials/Media.svelte"
   import {router} from "src/app/util/router"
-
+  import VerifiablePresentation from "src/app/shared/VerifiablePresentation.svelte"
+  
   export let value
   export let showMedia = false
+  export let pubkey = ""
 
   const url = value.url.toString()
 
   const coracleRegexp = /^(https?:\/\/)?(app\.)?coracle.social/
+  const verifiablePresentationRegexp = /#verifiable-presentation$/
+  const verifiableProfileRegexp = /#verifiable-profile$/
 
   const close = () => {
     hidden = true
@@ -19,7 +23,11 @@
   let hidden = false
 </script>
 
-{#if url.match(coracleRegexp)}
+{#if url.match(verifiablePresentationRegexp)}
+  <VerifiablePresentation {pubkey} {url} />
+{:else if url.match(verifiableProfileRegexp)}
+  {''}
+{:else if url.match(coracleRegexp)}
   <Anchor
     modal
     underline

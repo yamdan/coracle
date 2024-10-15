@@ -341,6 +341,29 @@
     },
   })
 
+  router.register(
+    "/verifiable-presentation/:pubkey/:url",
+    import("src/app/views/VerifiablePresentationDetail.svelte"),
+    {
+      serializers: {
+        url: asUrlComponent("url"),
+      },
+    },
+  )
+  router.register(
+    "/verifiable-presentation-embedded/:pubkey/:value",
+    import("src/app/views/VerifiablePresentationDetail.svelte"),
+    {
+      serializers: {
+        value: asUrlComponent("value"),
+      },
+    },
+  )
+  router.register(
+    "/verifiable-profile/:pubkey",
+    import("src/app/views/VerifiableProfileDetail.svelte"),
+  )
+
   router.init()
 
   // Globals

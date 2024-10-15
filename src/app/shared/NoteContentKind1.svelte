@@ -25,6 +25,7 @@
   import NoteContentLink from "src/app/shared/NoteContentLink.svelte"
   import PersonLink from "src/app/shared/PersonLink.svelte"
   import NoteContentQuote from "src/app/shared/NoteContentQuote.svelte"
+  import VerifiablePresentation from "./VerifiablePresentation.svelte"
 
   export let note
   export let minLength = 500
@@ -54,6 +55,19 @@
 
   const isStartOrEnd = i => Boolean(isBoundary(i - 1) || isBoundary(i + 1))
 
+  const getEmbeddedVPresentation = parsedCode => {
+    if (parsedCode.value.startsWith("verifiable-presentation")) {
+      return parsedCode.value.substring("verifiable-presentation".length).trim();
+    }
+    return null;
+  }
+  const getEmbeddedVProfile = parsedCode => {
+    if (parsedCode.value.startsWith("verifiable-profile")) {
+      return parsedCode.value.substring("verifiable-profile".length).trim();
+    }
+    return null;
+  }
+
   $: shortContent = showEntire
     ? fullContent
     : truncate(
@@ -77,7 +91,15 @@
     {:else if isTopic(parsed)}
       <NoteContentTopic value={parsed.value} />
     {:else if isCode(parsed)}
-      <NoteContentCode value={parsed.value} />
+      {@const embeddedVPresentation = getEmbeddedVPresentation(parsed)}
+      {@const embeddedVProfile = getEmbeddedVProfile(parsed)}
+      {#if embeddedVPresentation}
+        <VerifiablePresentation pubkey={note.pubkey} value={embeddedVPresentation} />
+      {:else if embeddedVProfile}
+        {""}
+      {:else}
+        <NoteContentCode value={parsed.value} />
+      {/if}
     {:else if isCashu(parsed)}
       <div on:click|stopPropagation>
         <QRCode copyOnClick code={parsed.value} />
@@ -87,7 +109,7 @@
         <QRCode copyOnClick code={parsed.value} />
       </div>
     {:else if isLink(parsed)}
-      <NoteContentLink value={parsed.value} showMedia={showMedia && isStartAndEnd(i)} />
+      <NoteContentLink value={parsed.value} pubkey={note.pubkey} showMedia={showMedia && isStartAndEnd(i)} />
     {:else if isProfile(parsed)}
       <PersonLink pubkey={parsed.value.pubkey} />
     {:else if isEvent(parsed) || isAddress(parsed)}
