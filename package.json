@@ -99,5 +99,9 @@
     "tippy.js": "^6.3.7",
     "typescript-eslint": "^8.4.0",
     "uuid": "^10.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.21.2",
+    "@img/sharp-linux-x64": "^0.33.5"
   }
 }
