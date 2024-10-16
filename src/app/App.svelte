@@ -101,6 +101,8 @@
     asRelay,
     asEntity,
   } from "src/app/util/router"
+  import VerifiableProfileDetail from "src/app/views/VerifiableProfileDetail.svelte"
+  import VerifiablePresentationDetail from "src/app/views/VerifiablePresentationDetail.svelte"
 
   const {session, pubkey} = app
 
@@ -403,6 +405,22 @@
       entity: asEntity,
     },
   })
+
+  router.register("/verifiable-presentation/:pubkey/:url", VerifiablePresentationDetail, {
+    serializers: {
+      url: asUrlComponent("url"),
+    },
+  })
+  router.register(
+    "/verifiable-presentation-embedded/:pubkey/:value",
+    VerifiablePresentationDetail,
+    {
+      serializers: {
+        value: asUrlComponent("value"),
+      },
+    },
+  )
+  router.register("/verifiable-profile/:pubkey", VerifiableProfileDetail)
 
   router.init()
 

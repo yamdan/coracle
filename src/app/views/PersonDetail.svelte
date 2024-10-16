@@ -46,7 +46,15 @@
   import PersonFollowers from "src/app/views/PersonFollowers.svelte"
   import PersonFollows from "src/app/views/PersonFollows.svelte"
   import {makeFeed} from "src/domain"
-  import {load, userMutes, imgproxy, userFollows, follow, unfollow} from "src/engine"
+  import {
+    load,
+    userMutes,
+    imgproxy,
+    userFollows,
+    follow,
+    unfollow,
+    deriveVerifiedProfile,
+  } from "src/engine"
   import {router} from "src/app/util"
   import {nip19} from "nostr-tools"
   import {tweened} from "svelte/motion"
@@ -103,6 +111,8 @@
   const setActiveTab = tab => {
     activeTab = tab
   }
+
+  $: profileVPPromise = deriveVerifiedProfile(pubkey)
 </script>
 
 <div
@@ -163,6 +173,29 @@
               <span>{npub}</span>
               <CopyValueSimple class="!inline-flex pl-1" value={npub} label="Npub" />
             </div>
+            {#await $profileVPPromise}
+              <Spinner />
+            {:then profileVP}
+              {#if profileVP !== undefined}
+                <Anchor
+                  modal
+                  class="mt-4 flex items-center gap-2 break-all opacity-75"
+                  stopPropagation
+                  href={router.at("verifiable-profile").of(pubkey).toString()}>
+                  {#if profileVP.result === true}
+                    <span>
+                      {profileVP.metadata?.holder}
+                      <i class="fa fa-at" />
+                      {profileVP.metadata?.domain}
+                    </span>
+                  {:else if profileVP.result === false}
+                    Invalid profile VP ({profileVP.error})
+                  {/if}
+                </Anchor>
+              {/if}
+            {:catch e}
+              <small class="text-xs">Failed to load profile VP</small>
+            {/await}
           </div>
           <div class="absolute right-4 top-4">
             <PersonActions {pubkey} />
