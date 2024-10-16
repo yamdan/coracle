@@ -72,6 +72,7 @@ import type {
   EventTemplate,
   PublishedList,
   StampedEvent,
+  PublishedProfile,
 } from "@welshman/util"
 import {Nip59, Nip01Signer} from "@welshman/signer"
 import {Executor, Multi, Plex, Local, Relays, publish as basePublish} from "@welshman/net"
@@ -114,6 +115,7 @@ import {
   sessions,
   maxWot,
   repositoryStore,
+  deriveProfile,
 } from "@welshman/app"
 import {parseJson, fromCsv, SearchHelper} from "src/util/misc"
 import {Collection as CollectionStore} from "src/util/store"
@@ -153,6 +155,7 @@ import type {
 } from "src/engine/model"
 import {sortEventsAsc, unwrapRepost} from "src/engine/utils"
 import {GroupAccess, OnboardingTask} from "src/engine/model"
+import {DOMAIN_FOR_PPID, verifyEmbeddedVP, verifyRemoteVP} from "src/util/verification"
 
 export const env = {
   CLIENT_ID: import.meta.env.VITE_CLIENT_ID as string,
@@ -331,6 +334,28 @@ export const dufflepud = (path: string) => {
 
   return `${base}/${path}`
 }
+
+// Verified Profiles
+
+const verifiableProfileRegexp = /https:\/\/[^#]+#verifiable-profile/
+const embeddedVerifiableProfileRegexp = /```verifiable-profile\s*([\s\S]+)```/m
+
+export const verifyProfileByPubkey = async (profile: PublishedProfile) => {
+  const pubkey = profile.event.pubkey
+  const vpLink = profile.about?.match(verifiableProfileRegexp)?.[0]
+  const vpEmbedded = profile.about?.match(embeddedVerifiableProfileRegexp)?.[1]
+
+  if (vpLink) {
+    return await verifyRemoteVP(vpLink, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+  } else if (vpEmbedded) {
+    return await verifyEmbeddedVP(vpEmbedded, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+  }
+
+  return undefined
+}
+
+export const deriveVerifiedProfile = (pk: string) =>
+  derived(deriveProfile(pk), profile => verifyProfileByPubkey(profile))
 
 // User follows/mutes/network
 

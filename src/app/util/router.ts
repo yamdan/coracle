@@ -139,3 +139,13 @@ router.extend("people", (pubkey, {relays = []} = {}) => {
 
   return nip19.nprofileEncode({pubkey, relays})
 })
+
+router.extend("verifiable-presentation", (pubkey, {url}) => {
+  return `${pubkey}/${encodeURIComponent(url)}`
+})
+router.extend("verifiable-presentation-embedded", (pubkey, {value}) => {
+  return `${pubkey}/${encodeURIComponent(value)}`
+})
+router.extend("verifiable-profile", (pubkey) => {
+  return `${pubkey}`
+})

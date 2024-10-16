@@ -34,7 +34,7 @@
   import PersonStats from "src/app/shared/PersonStats.svelte"
   import PersonCollections from "src/app/shared/PersonCollections.svelte"
   import {makeFeed} from "src/domain"
-  import {load, userMutes, imgproxy} from "src/engine"
+  import {load, userMutes, imgproxy, deriveVerifiedProfile} from "src/engine"
   import {router} from "src/app/util"
 
   export let pubkey
@@ -65,6 +65,8 @@
   const setActiveTab = tab => {
     activeTab = tab
   }
+
+  $: profileVPPromise = deriveVerifiedProfile(pubkey)
 </script>
 
 <div
@@ -84,6 +86,30 @@
         </div>
       </div>
       <PersonHandle {pubkey} />
+      {#await $profileVPPromise}
+        <Spinner />
+      {:then profileVP}
+        {#if profileVP !== undefined}
+          <Anchor
+            modal
+            class="flex items-center gap-2 text-sm"
+            stopPropagation
+            href={router.at("verifiable-profile").of(pubkey).toString()}>
+            <i class="fa fa-id-card text-accent" />
+            {#if profileVP.result === true}
+              <code class="text-xs">
+                {profileVP.metadata?.holder}
+                <i class="fa fa-at" />
+                {profileVP.metadata?.domain}
+              </code>
+            {:else if profileVP.result === false}
+              Invalid profile VP ({profileVP.error})
+            {/if}
+          </Anchor>
+        {/if}
+      {:catch e}
+        <small class="text-xs">Failed to load profile VP</small>
+      {/await}
     </div>
     {#if $profile?.website}
       <Anchor external class="flex items-center gap-2 text-sm" href={ensureProto($profile.website)}>
