@@ -112,6 +112,10 @@
     activeTab = tab
   }
 
+  const verifiableProfileDetail = () => {
+    router.at("verifiable-profile").of(pubkey).open()
+  }
+
   $: profileVPPromise = deriveVerifiedProfile(pubkey)
 </script>
 
@@ -177,21 +181,23 @@
               <Spinner />
             {:then profileVP}
               {#if profileVP !== undefined}
-                <Anchor
-                  modal
-                  class="mt-4 flex items-center gap-2 break-all opacity-75"
-                  stopPropagation
-                  href={router.at("verifiable-profile").of(pubkey).toString()}>
-                  {#if profileVP.result === true}
-                    <span>
+                <div class="mt-4 break-all opacity-75">
+                  <span class="cursor-pointer transition-colors" on:click={verifiableProfileDetail}>
+                    {#if profileVP.result === true}
                       {profileVP.metadata?.holder}
                       <i class="fa fa-at" />
                       {profileVP.metadata?.domain}
-                    </span>
-                  {:else if profileVP.result === false}
-                    Invalid profile VP ({profileVP.error})
+                    {:else if profileVP.result === false}
+                      Invalid profile VP ({profileVP.error})
+                    {/if}
+                  </span>
+                  {#if profileVP.result === true}
+                    <CopyValueSimple
+                      class="!inline-flex pl-1"
+                      value={profileVP.metadata?.holder}
+                      label="did:key" />
                   {/if}
-                </Anchor>
+                </div>
               {/if}
             {:catch e}
               <small class="text-xs">Failed to load profile VP</small>
