@@ -1,5 +1,6 @@
 <script lang="ts">
   import {onMount} from "svelte"
+  import {nip19} from "nostr-tools"
   import {fly} from "src/util/transition"
   import Spinner from "src/partials/Spinner.svelte"
   import {defer} from "hurdak"
@@ -19,12 +20,13 @@
 
   let messageVpPromise: Promise<VerifiedVP> = defer()
   $: profileVpPromise = deriveVerifiedProfile(pubkey)
+  $: npub = nip19.npubEncode(pubkey)
 
   onMount(async () => {
     if (url) {
-      messageVpPromise = verifyRemoteVP(url, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+      messageVpPromise = verifyRemoteVP(url, {challenge: npub, domain: DOMAIN_FOR_PPID})
     } else if (value) {
-      messageVpPromise = verifyEmbeddedVP(value, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+      messageVpPromise = verifyEmbeddedVP(value, {challenge: npub, domain: DOMAIN_FOR_PPID})
     }
   })
 
@@ -96,7 +98,7 @@
         <span>{messageVP.metadata.holder} <i class="fa fa-at" /> {messageVP.metadata.domain}</span>
 
         <h2 class="staatliches text-xl">Nostr Public Key</h2>
-        <span>{pubkey}</span>
+        <span>{npub}</span>
 
         <h2 class="staatliches text-xl">Challenge (Signed Value)</h2>
         <span>{messageVP.metadata.challenge}</span>

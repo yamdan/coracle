@@ -1,11 +1,13 @@
 <script lang="ts">
+  import {nip19} from "nostr-tools"
   import {deriveVerifiedProfile} from "src/engine"
   import Spinner from "src/partials/Spinner.svelte"
   import {fly} from "src/util/transition"
 
-  export let pubkey = ''
+  export let pubkey = ""
 
   $: profileVpPromise = deriveVerifiedProfile(pubkey)
+  $: npub = nip19.npubEncode(pubkey)
 </script>
 
 {#await $profileVpPromise}
@@ -28,7 +30,7 @@
       <span>{profileVP.metadata.holder} <i class="fa fa-at" /> {profileVP.metadata.domain}</span>
 
       <h2 class="staatliches text-xl">Nostr Public Key</h2>
-      <span>{pubkey}</span>
+      <span>{npub}</span>
 
       <h2 class="staatliches text-xl">Challenge (Signed Value)</h2>
       <span>{profileVP.metadata.challenge}</span>

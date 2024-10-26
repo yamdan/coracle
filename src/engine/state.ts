@@ -3,6 +3,7 @@ import crypto from "crypto"
 import {get, derived, writable} from "svelte/store"
 import {doPipe, batch, seconds, sleep} from "hurdak"
 import {defaultTo, equals, assoc, sortBy, omit, partition, prop, whereEq, without} from "ramda"
+import {nip19} from "nostr-tools"
 import {
   ctx,
   setContext,
@@ -341,13 +342,14 @@ const embeddedVerifiableProfileRegexp = /```verifiable-profile\s*([\s\S]+)```/m
 
 export const verifyProfileByPubkey = async (profile: PublishedProfile) => {
   const pubkey = profile.event.pubkey
+  const npub = nip19.npubEncode(pubkey)
   const vpLink = profile.about?.match(verifiableProfileRegexp)?.[0]
   const vpEmbedded = profile.about?.match(embeddedVerifiableProfileRegexp)?.[1]
 
   if (vpLink) {
-    return await verifyRemoteVP(vpLink, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+    return await verifyRemoteVP(vpLink, {challenge: npub, domain: DOMAIN_FOR_PPID})
   } else if (vpEmbedded) {
-    return await verifyEmbeddedVP(vpEmbedded, {challenge: pubkey, domain: DOMAIN_FOR_PPID})
+    return await verifyEmbeddedVP(vpEmbedded, {challenge: npub, domain: DOMAIN_FOR_PPID})
   }
 
   return undefined
